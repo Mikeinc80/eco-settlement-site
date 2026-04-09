@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="ECO Settlement — Understanding the infrastructure behind cross-border digital settlement. An explainer resource by ECO Infrastructure and GoBeyond Advisory."/>
+<title>ECO Settlement | Digital Settlement Infrastructure Explainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --black:#0C0A07;
+  --dark:#141210;
+  --ink:#1E1C18;
+  --panel:#232018;
+  --gold:#B8964A;
+  --gold-lt:#D4AF6A;
+  --gold-dk:#8A6E32;
+  --gold-dim:rgba(184,150,74,0.1);
+  --cream:#F2EDE6;
+  --muted:#7A756D;
+  --border:#2E2B25;
+  --border2:rgba(184,150,74,0.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--black);color:var(--cream);
+  font-family:'Syne',sans-serif;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--black);}
+::-webkit-scrollbar-thumb{background:var(--gold-dk);}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 60px;height:64px;
+  background:rgba(12,10,7,0.96);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.nav-brand{
+  display:flex;align-items:center;gap:16px;
+}
+.nav-logo{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:700;letter-spacing:2px;
+  color:var(--gold);text-decoration:none;
+}
+.nav-sep{color:var(--border);font-size:16px;}
+.nav-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:1.5px;
+  color:var(--muted);text-transform:uppercase;
+}
+.nav-back{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:1.5px;
+  color:var(--black);background:var(--gold);
+  padding:9px 20px;text-decoration:none;
+  text-transform:uppercase;
+  transition:background .2s;
+}
+.nav-back:hover{background:var(--gold-lt);}
+
+/* ── HERO ── */
+.hero{
+  min-height:70vh;
+  display:flex;flex-direction:column;
+  justify-content:flex-end;
+  padding:100px 60px 60px;
+  border-bottom:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.hero-bg-text{
+  position:absolute;
+  bottom:-40px;right:-20px;
+  font-size:clamp(120px,18vw,240px);
+  font-weight:800;
+  color:rgba(184,150,74,0.04);
+  line-height:1;
+  pointer-events:none;
+  white-space:nowrap;
+  letter-spacing:-4px;
+}
+.hero-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:3px;
+  color:var(--gold);text-transform:uppercase;
+  margin-bottom:20px;
+  border-left:2px solid var(--gold);
+  padding-left:14px;
+}
+.hero h1{
+  font-size:clamp(36px,5.5vw,76px);
+  font-weight:800;line-height:1.05;
+  max-width:860px;margin-bottom:20px;
+}
+.hero h1 em{
+  font-style:italic;
+  font-family:'Cormorant Garamond',serif;
+  color:var(--gold);
+}
+.hero-body{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(16px,1.7vw,21px);
+  color:rgba(242,237,230,.6);
+  max-width:620px;line-height:1.65;
+  margin-bottom:32px;
+}
+.hero-cta{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:700;letter-spacing:1.5px;
+  color:var(--black);background:var(--gold);
+  padding:14px 32px;text-decoration:none;
+  text-transform:uppercase;display:inline-block;
+  transition:background .2s;
+}
+.hero-cta:hover{background:var(--gold-lt);}
+
+/* ── TOC ── */
+.toc-bar{
+  background:var(--ink);
+  border-bottom:1px solid var(--border);
+  padding:0 60px;
+  display:flex;gap:0;
+  overflow-x:auto;
+}
+.toc-item{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:1.5px;
+  color:var(--muted);text-transform:uppercase;
+  padding:16px 24px;
+  text-decoration:none;white-space:nowrap;
+  border-right:1px solid var(--border);
+  transition:color .2s,background .2s;
+}
+.toc-item:hover{color:var(--gold);background:var(--panel);}
+
+/* ── CONTENT SECTIONS ── */
+.content-section{
+  padding:80px 60px;
+  border-bottom:1px solid var(--border);
+  max-width:1200px;margin:0 auto;
+}
+.full-section{border-bottom:1px solid var(--border);}
+.full-inner{padding:80px 60px;max-width:1200px;margin:0 auto;}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:3px;
+  color:var(--gold);text-transform:uppercase;
+  margin-bottom:14px;display:block;
+}
+.section-title{
+  font-size:clamp(26px,3.2vw,44px);
+  font-weight:800;line-height:1.1;
+  margin-bottom:14px;
+}
+.section-title em{
+  font-style:italic;
+  font-family:'Cormorant Garamond',serif;
+  color:var(--gold);
+}
+.section-body{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(16px,1.6vw,19px);
+  color:rgba(242,237,230,.6);
+  line-height:1.7;max-width:660px;
+}
+.gold-line{width:40px;height:2px;background:var(--gold);margin-bottom:24px;}
+
+/* ── GLOSSARY ── */
+.glossary-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);
+  margin-top:48px;
+}
+.glossary-item{
+  background:var(--black);
+  padding:36px 32px;
+  transition:background .2s;
+}
+.glossary-item:hover{background:var(--ink);}
+.gloss-term{
+  font-size:16px;font-weight:700;color:var(--cream);
+  margin-bottom:6px;
+}
+.gloss-short{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:1.5px;
+  color:var(--gold);margin-bottom:12px;
+  text-transform:uppercase;
+}
+.gloss-body{
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px;color:rgba(242,237,230,.55);
+  line-height:1.6;
+}
+
+/* ── ANATOMY (HOW IT WORKS) ── */
+.anatomy-bg{background:var(--ink);}
+.anatomy-flow{
+  display:grid;grid-template-columns:repeat(6,1fr);
+  gap:1px;background:var(--border);
+  margin-top:48px;border:1px solid var(--border);
+  position:relative;
+}
+.anatomy-step{
+  background:var(--black);
+  padding:32px 20px;
+  text-align:center;
+  position:relative;
+}
+.step-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:2px;
+  color:var(--gold-dk);margin-bottom:14px;
+}
+.step-icon{font-size:22px;margin-bottom:12px;display:block;opacity:.6;}
+.step-title{
+  font-size:13px;font-weight:700;
+  color:var(--cream);margin-bottom:8px;
+}
+.step-body{
+  font-family:'Cormorant Garamond',serif;
+  font-size:13px;color:rgba(242,237,230,.45);
+  line-height:1.55;
+}
+
+/* ── SWIFT COMPARE ── */
+.compare-wrap{
+  border:1px solid var(--border);
+  overflow:hidden;margin-top:48px;
+}
+.compare-header{
+  display:grid;grid-template-columns:1.4fr 1fr 1fr;
+  background:var(--panel);padding:14px 20px;
+  border-bottom:1px solid var(--border);
+}
+.compare-header span{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:2px;
+  color:var(--gold);text-transform:uppercase;
+}
+.compare-row{
+  display:grid;grid-template-columns:1.4fr 1fr 1fr;
+  padding:14px 20px;
+  border-bottom:1px solid rgba(46,43,37,0.5);
+}
+.compare-row:last-child{border-bottom:none;}
+.compare-row:nth-child(odd){background:rgba(255,255,255,0.01);}
+.c-label{font-size:13px;color:var(--muted);font-weight:600;}
+.c-old{
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px;color:rgba(242,237,230,.35);
+  text-decoration:line-through;
+}
+.c-new{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:700;color:var(--gold);
+}
+
+/* ── PROBLEM CARDS ── */
+.problem-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);margin-top:48px;
+}
+.problem-card{
+  background:var(--black);
+  padding:32px 28px;
+  border-left:3px solid var(--border);
+  transition:border-color .25s;
+}
+.problem-card:hover{border-left-color:var(--gold-dk);}
+.prob-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:2px;
+  color:var(--gold);margin-bottom:12px;
+}
+.prob-title{
+  font-size:15px;font-weight:700;color:var(--cream);
+  margin-bottom:8px;
+}
+.prob-body{
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px;color:rgba(242,237,230,.5);
+  line-height:1.6;
+}
+
+/* ── CORRIDORS EXPLAINER ── */
+.corridor-explainer{background:var(--ink);}
+.corridor-table{
+  width:100%;border-collapse:collapse;margin-top:40px;
+}
+.corridor-table th{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:2px;
+  color:var(--gold);text-transform:uppercase;
+  padding:12px 18px;
+  background:var(--panel);
+  text-align:left;border-bottom:1px solid var(--border);
+}
+.corridor-table td{
+  padding:13px 18px;
+  border-bottom:1px solid rgba(46,43,37,0.4);
+  font-size:13px;vertical-align:top;
+}
+.corridor-table tr:hover td{background:rgba(184,150,74,0.02);}
+td.phase{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:1px;
+  color:var(--gold);
+}
+td.active-phase-row{color:var(--gold-lt);font-weight:700;}
+td.corridor-flow{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+.phase-dot{
+  display:inline-block;width:6px;height:6px;
+  background:var(--gold);border-radius:50%;
+  margin-right:6px;animation:blink 1.5s infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+/* ── ECO PRINCIPLES ── */
+.principles-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);margin-top:48px;
+}
+.principle{
+  background:var(--black);padding:36px 28px;
+}
+.principle-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:2px;
+  color:var(--gold);margin-bottom:12px;
+}
+.principle-title{
+  font-size:15px;font-weight:700;color:var(--cream);
+  margin-bottom:10px;
+}
+.principle-body{
+  font-family:'Cormorant Garamond',serif;
+  font-size:14px;color:rgba(242,237,230,.5);line-height:1.6;
+}
+
+/* ── QUOTE BLOCK ── */
+.quote-section{
+  background:var(--panel);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:64px 60px;text-align:center;
+}
+.big-quote{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(22px,3vw,38px);
+  font-style:italic;color:var(--cream);
+  line-height:1.35;max-width:820px;
+  margin:0 auto 16px;
+}
+.big-quote-attr{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:2px;
+  color:var(--gold);text-transform:uppercase;
+}
+
+/* ── CTA ── */
+.cta-section{
+  background:var(--ink);
+  padding:80px 60px;
+  text-align:center;
+  border-bottom:none;
+}
+.cta-title{
+  font-size:clamp(28px,4vw,52px);
+  font-weight:800;line-height:1.1;
+  margin-bottom:16px;
+}
+.cta-title em{
+  font-style:italic;
+  font-family:'Cormorant Garamond',serif;
+  color:var(--gold);
+}
+.cta-body{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(16px,1.7vw,20px);
+  color:rgba(242,237,230,.6);
+  max-width:560px;margin:0 auto 36px;line-height:1.6;
+}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:700;letter-spacing:1.5px;
+  color:var(--black);background:var(--gold);
+  padding:15px 32px;text-decoration:none;
+  text-transform:uppercase;transition:background .2s;
+  display:inline-block;
+}
+.btn-primary:hover{background:var(--gold-lt);}
+.btn-ghost{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:700;letter-spacing:1.5px;
+  color:var(--gold);background:transparent;
+  border:1px solid var(--border2);
+  padding:15px 32px;text-decoration:none;
+  text-transform:uppercase;
+  transition:border-color .2s;display:inline-block;
+}
+.btn-ghost:hover{border-color:var(--gold);}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--black);
+  border-top:1px solid var(--border);
+  padding:36px 60px;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:16px;
+}
+.footer-brand{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:700;letter-spacing:2px;
+  color:var(--gold);margin-bottom:4px;
+}
+.footer-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;color:var(--muted);letter-spacing:1px;
+}
+.footer-links{display:flex;gap:24px;flex-wrap:wrap;}
+.footer-links a{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:1.5px;
+  color:var(--muted);text-decoration:none;
+  text-transform:uppercase;transition:color .2s;
+}
+.footer-links a:hover{color:var(--gold);}
+.footer-copy{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;color:var(--muted);letter-spacing:1px;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  nav{padding:0 24px;}
+  .hero,.content-section,.full-inner,.quote-section,.cta-section{padding-left:24px;padding-right:24px;}
+  .toc-bar{padding:0 24px;}
+  .glossary-grid,.problem-grid{grid-template-columns:1fr;}
+  .anatomy-flow{grid-template-columns:repeat(3,1fr);}
+  .principles-grid{grid-template-columns:1fr 1fr;}
+  .compare-header,.compare-row{grid-template-columns:1fr;}
+  .compare-header span:not(:first-child){display:none;}
+  footer{padding:28px 24px;flex-direction:column;align-items:flex-start;}
+}
+@media(max-width:600px){
+  .anatomy-flow{grid-template-columns:repeat(2,1fr);}
+  .principles-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <a href="https://eco-rails.com" class="nav-logo">ECO / SETTLEMENT</a>
+    <span class="nav-sep">|</span>
+    <span class="nav-sub">An explainer by ECO Infrastructure</span>
+  </div>
+  <a href="https://eco-rails.com" class="nav-back">Visit ECO Infrastructure →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-text">SETTLEMENT</div>
+  <div class="hero-eyebrow">ECO Settlement · Knowledge Resource</div>
+  <h1>Understanding the <em>rails</em><br/>that move capital<br/>across borders.</h1>
+  <p class="hero-body">Most people see only the surface of a cross-border transaction. What happens beneath — the validation, the FX conversion, the compliance architecture, the final settlement — is where infrastructure either succeeds or fails at scale. This is what ECO Infrastructure is built to solve.</p>
+  <a href="https://eco-rails.com#partner" class="hero-cta">Engage With ECO Infrastructure →</a>
+</section>
+
+<!-- TOC -->
+<div class="toc-bar">
+  <a href="#glossary" class="toc-item">Key Terms</a>
+  <a href="#anatomy" class="toc-item">How Settlement Works</a>
+  <a href="#comparison" class="toc-item">SWIFT vs ECO</a>
+  <a href="#problem" class="toc-item">The Problem</a>
+  <a href="#corridors" class="toc-item">African Corridors</a>
+  <a href="#approach" class="toc-item">ECO's Approach</a>
+  <a href="#engage" class="toc-item">Engage</a>
+</div>
+
+<!-- GLOSSARY -->
+<section id="glossary" class="content-section">
+  <span class="eyebrow">Key Terms</span>
+  <div class="gold-line"></div>
+  <h2 class="section-title">The vocabulary of<br/><em>settlement infrastructure.</em></h2>
+  <p class="section-body">Before understanding how ECO works, it helps to understand the language of digital settlement and cross-border capital movement.</p>
+  <div class="glossary-grid">
+    <div class="glossary-item">
+      <div class="gloss-term">Settlement</div>
+      <div class="gloss-short">Final Transfer</div>
+      <div class="gloss-body">The final transfer of funds between parties following a transaction — the moment when ownership of value legally changes hands. Settlement infrastructure ensures finality, accuracy, compliance, and irrevocability at scale.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="gloss-term">FX Rails</div>
+      <div class="gloss-short">Foreign Exchange Architecture</div>
+      <div class="gloss-body">The underlying architecture enabling foreign exchange conversion and transfer across sovereign currency corridors. FX rails determine the speed, cost, and stability of cross-border value movement.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="gloss-term">Stablecoin Settlement Layer</div>
+      <div class="gloss-short">Value-Stable Infrastructure</div>
+      <div class="gloss-body">A digital asset architecture pegged to a commodity or fiat basket that maintains stable value during settlement — eliminating FX spread loss and volatility between transaction initiation and final receipt.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="gloss-term">Liquidity Corridor</div>
+      <div class="gloss-short">Capital Pathway</div>
+      <div class="gloss-body">A structured pathway between two or more markets enabling consistent, compliant, and efficient capital movement across borders. ECO designs specific corridors for each geographic phase of deployment.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="gloss-term">Correspondent Banking</div>
+      <div class="gloss-short">Legacy Intermediary Model</div>
+      <div class="gloss-body">The traditional model in which banks rely on a chain of intermediary institutions to facilitate cross-border payments — introducing delay, cost, and opacity at every step. The model ECO replaces.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="gloss-term">CBN Fintech Sandbox</div>
+      <div class="gloss-short">Regulatory Test Framework</div>
+      <div class="gloss-body">The Central Bank of Nigeria's regulatory sandbox framework allowing fintech infrastructure companies to test and demonstrate compliance in a controlled environment before full licensing — ECO's Phase 1 regulatory pathway.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="gloss-term">ECOWAS Payment Protocols</div>
+      <div class="gloss-short">Regional Alignment Standard</div>
+      <div class="gloss-body">The Economic Community of West African States payment integration framework — the regional regulatory standard ECO's West Africa corridor architecture is designed to align with for multi-sovereign deployment.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="gloss-term">PAPSS</div>
+      <div class="gloss-short">Pan-African Payment System</div>
+      <div class="gloss-body">The Pan-African Payment and Settlement System — the official intra-African settlement mechanism with near-zero adoption in practice. ECO's Phase 3 represents the private-sector execution of what PAPSS was designed to achieve.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ANATOMY -->
+<div id="anatomy" class="full-section anatomy-bg">
+  <div class="full-inner">
+    <span class="eyebrow">How It Works</span>
+    <div class="gold-line"></div>
+    <h2 class="section-title">The anatomy of a<br/><em>settlement transaction.</em></h2>
+    <p class="section-body">Most people see only the surface of a payment — a send and a receive. What happens between those two moments is where infrastructure either succeeds or fails. Here is what ECO's settlement architecture handles at every step.</p>
+    <div class="anatomy-flow">
+      <div class="anatomy-step">
+        <div class="step-num">01</div>
+        <span class="step-icon">⬡</span>
+        <div class="step-title">Initiation</div>
+        <div class="step-body">Transaction originated by sender — individual, business, or institution — across any authorized channel or partner interface.</div>
+      </div>
+      <div class="anatomy-step">
+        <div class="step-num">02</div>
+        <span class="step-icon">◈</span>
+        <div class="step-title">Validation</div>
+        <div class="step-body">Compliance checks, identity verification, and transaction limit validation performed in real time. No manual queue. No delay.</div>
+      </div>
+      <div class="anatomy-step">
+        <div class="step-num">03</div>
+        <span class="step-icon">◎</span>
+        <div class="step-title">FX Conversion</div>
+        <div class="step-body">Currency conversion routed through ECO's commodity-backed stablecoin layer — eliminating spread loss and FX volatility at the point of conversion.</div>
+      </div>
+      <div class="anatomy-step">
+        <div class="step-num">04</div>
+        <span class="step-icon">⬡</span>
+        <div class="step-title">Corridor Routing</div>
+        <div class="step-body">Funds directed through the appropriate settlement rail for the destination corridor — Nigeria to Dubai, Lagos to London, Accra to Houston.</div>
+      </div>
+      <div class="anatomy-step">
+        <div class="step-num">05</div>
+        <span class="step-icon">◈</span>
+        <div class="step-title">Final Settlement</div>
+        <div class="step-body">Transfer confirmed and finality recorded. Recipient receives funds in local currency at the agreed rate. Transaction completed in minutes — not days.</div>
+      </div>
+      <div class="anatomy-step">
+        <div class="step-num">06</div>
+        <span class="step-icon">◎</span>
+        <div class="step-title">Reporting & Audit</div>
+        <div class="step-body">Regulatory reporting generated and full audit trail recorded. Compliant with each sovereign jurisdiction's requirements across every corridor.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SWIFT COMPARISON -->
+<section id="comparison" class="content-section">
+  <span class="eyebrow">SWIFT vs ECO Infrastructure</span>
+  <div class="gold-line"></div>
+  <h2 class="section-title">Why legacy infrastructure<br/><em>fails African corridors.</em></h2>
+  <p class="section-body">SWIFT and correspondent banking were designed for a world where settlement took days and fees were acceptable because there was no alternative. ECO was designed for a world where neither is true.</p>
+  <div class="compare-wrap">
+    <div class="compare-header">
+      <span>Feature</span>
+      <span>SWIFT / Legacy Wire</span>
+      <span>ECO Infrastructure</span>
+    </div>
+    <div class="compare-row">
+      <span class="c-label">Settlement Time</span>
+      <span class="c-old">3–5 business days</span>
+      <span class="c-new">Minutes</span>
+    </div>
+    <div class="compare-row">
+      <span class="c-label">Cost per Transaction</span>
+      <span class="c-old">$25–$45 flat + 5–8% FX spread</span>
+      <span class="c-new">Cents on the dollar</span>
+    </div>
+    <div class="compare-row">
+      <span class="c-label">Ownership</span>
+      <span class="c-old">Foreign-controlled infrastructure</span>
+      <span class="c-new">African-owned and operated</span>
+    </div>
+    <div class="compare-row">
+      <span class="c-label">FX Stability</span>
+      <span class="c-old">Market rate + spread at conversion</span>
+      <span class="c-new">Commodity-backed stablecoin peg</span>
+    </div>
+    <div class="compare-row">
+      <span class="c-label">African Coverage</span>
+      <span class="c-old">Limited, expensive corridors</span>
+      <span class="c-new">Built specifically for African corridors</span>
+    </div>
+    <div class="compare-row">
+      <span class="c-label">Transparency</span>
+      <span class="c-old">Opaque intermediary chain</span>
+      <span class="c-new">Real-time audit trail</span>
+    </div>
+    <div class="compare-row">
+      <span class="c-label">Compliance</span>
+      <span class="c-old">Legacy correspondent model</span>
+      <span class="c-new">CBN sandbox + ECOWAS aligned</span>
+    </div>
+    <div class="compare-row">
+      <span class="c-label">Data Sovereignty</span>
+      <span class="c-old">Data flows through foreign systems</span>
+      <span class="c-new">Data remains African-controlled</span>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<div class="quote-section">
+  <p class="big-quote">"ECO Infrastructure is not an app, a token, or a speculative product. It is the settlement layer — the rails that allow capital, intelligence, and value to move efficiently across borders."</p>
+  <span class="big-quote-attr">— ECO Infrastructure · Canonical Position Statement</span>
+</div>
+
+<!-- THE PROBLEM -->
+<section id="problem" class="content-section">
+  <span class="eyebrow">The Problem</span>
+  <div class="gold-line"></div>
+  <h2 class="section-title">Why African corridors need<br/><em>better rails.</em></h2>
+  <p class="section-body">Across West Africa, the GCC, and the African diaspora globally, trillions in potential economic activity are constrained by fragmented, costly, and foreign-owned settlement infrastructure.</p>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="prob-num">01</div>
+      <div class="prob-title">The Cost Problem</div>
+      <div class="prob-body">African diaspora pays 5–10% per transaction to move their own money through foreign infrastructure. Over $10B annually is extracted from African corridors in fees alone — wealth that should stay on the continent.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-num">02</div>
+      <div class="prob-title">The Speed Problem</div>
+      <div class="prob-body">SWIFT takes 3–5 business days. Business capital sits idle. Trade invoices wait. Remittances arrive days after they're needed. Real-time settlement infrastructure for African corridors simply does not exist at scale.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-num">03</div>
+      <div class="prob-title">The Sovereignty Problem</div>
+      <div class="prob-body">OPay — Nigeria's largest payment app — is Chinese-owned. Western Union is American. Wise is British. Every major rail serving African corridors is controlled offshore. African transaction data and revenue flows out of the continent.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-num">04</div>
+      <div class="prob-title">The Intra-Africa Problem</div>
+      <div class="prob-body">Moving money from Lagos to Accra to Abidjan to Nairobi requires more friction than Lagos to London. $50B+ in annual intra-African flow has no compliant, fast, affordable settlement infrastructure. PAPSS exists but has achieved near-zero adoption.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-num">05</div>
+      <div class="prob-title">The FX Volatility Problem</div>
+      <div class="prob-body">NGN and GHS constantly move. Without a stable value layer, money loses value between send and receive — particularly damaging for B2B trade settlement where margins are thin and timing is critical.</div>
+    </div>
+    <div class="problem-card">
+      <div class="prob-num">06</div>
+      <div class="prob-title">The Compliance Gap</div>
+      <div class="prob-body">30–40% of African cross-border transactions still happen through informal hawala networks — unregulated, unaudited, and offering no recourse. The gap exists because compliant alternatives are too expensive or too slow to compete.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CORRIDORS EXPLAINER -->
+<div id="corridors" class="full-section corridor-explainer">
+  <div class="full-inner">
+    <span class="eyebrow">African Corridors</span>
+    <div class="gold-line"></div>
+    <h2 class="section-title">The $200B+ African<br/><em>global economy.</em></h2>
+    <p class="section-body">These are the corridors ECO Infrastructure is designed to serve — deployed in three disciplined phases from beachhead to full global rail.</p>
+    <table class="corridor-table">
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Corridor</th>
+          <th>Annual Flow</th>
+          <th>Key Markets</th>
+          <th>Current Infrastructure</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="phase"><span class="phase-dot"></span>Phase 1</td>
+          <td class="active-phase-row">West Africa ↔ GCC</td>
+          <td style="color:var(--gold);font-weight:700;">$50B+</td>
+          <td class="corridor-flow">Nigeria · Ghana · CIV → Dubai · Abu Dhabi</td>
+          <td style="color:var(--muted);font-size:12px;">Hawala + Western Union</td>
+          <td style="color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:9px;">ACTIVE · NOW</td>
+        </tr>
+        <tr>
+          <td class="phase">Phase 2</td>
+          <td>West Africa ↔ UK / Europe</td>
+          <td style="color:var(--gold);font-weight:700;">$40B+</td>
+          <td class="corridor-flow">Nigeria · Ghana · Senegal → London · Paris · Amsterdam</td>
+          <td style="color:var(--muted);font-size:12px;">Wise + informal channels</td>
+          <td style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;">2027</td>
+        </tr>
+        <tr>
+          <td class="phase">Phase 3a</td>
+          <td>All Africa ↔ USA</td>
+          <td style="color:var(--gold);font-weight:700;">$25B+</td>
+          <td class="corridor-flow">Houston · Atlanta · NYC ↔ Lagos · Accra · Nairobi</td>
+          <td style="color:var(--muted);font-size:12px;">Western Union + Zelle</td>
+          <td style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;">2028</td>
+        </tr>
+        <tr>
+          <td class="phase">Phase 3b</td>
+          <td>Intra-Africa Settlement</td>
+          <td style="color:var(--gold);font-weight:700;">$50B+</td>
+          <td class="corridor-flow">Lagos · Accra · Nairobi · Johannesburg · Dakar</td>
+          <td style="color:var(--muted);font-size:12px;">PAPSS (near-zero adoption)</td>
+          <td style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:9px;">2028</td>
+        </tr>
+        <tr>
+          <td class="phase">All Phases</td>
+          <td style="font-weight:700;color:var(--gold);">African Global Economy</td>
+          <td style="color:var(--gold);font-weight:700;font-size:15px;">$200B+</td>
+          <td class="corridor-flow">Total addressable corridor market</td>
+          <td style="color:var(--muted);font-size:12px;">Fragmented legacy infrastructure</td>
+          <td style="color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:9px;">ECO RAIL</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ECO APPROACH -->
+<section id="approach" class="content-section">
+  <span class="eyebrow">ECO's Approach</span>
+  <div class="gold-line"></div>
+  <h2 class="section-title">Infrastructure-first.<br/><em>Always.</em></h2>
+  <p class="section-body">ECO Infrastructure is designed for regulators, sovereign institutions, and enterprise partners who require institutional-grade compliance and scalability. Three founding principles guide everything.</p>
+  <div class="principles-grid">
+    <div class="principle">
+      <div class="principle-num">Principle 01</div>
+      <div class="principle-title">Regulatory First</div>
+      <div class="principle-body">Every corridor is designed with regulatory alignment and sandbox participation as foundational requirements — not afterthoughts. CBN, ECOWAS, and sovereign compliance built into the architecture from inception.</div>
+    </div>
+    <div class="principle">
+      <div class="principle-num">Principle 02</div>
+      <div class="principle-title">Institutional Grade</div>
+      <div class="principle-body">Architecture built to the standards required by sovereign funds, central banks, and regulated financial institutions. Not consumer-grade infrastructure scaled up — institutional-grade infrastructure from day one.</div>
+    </div>
+    <div class="principle">
+      <div class="principle-num">Principle 03</div>
+      <div class="principle-title">African Sovereignty</div>
+      <div class="principle-body">Every data point, every transaction record, every revenue dollar stays on the continent. ECO exists to end the era of African economic infrastructure being owned and operated offshore.</div>
+    </div>
+    <div class="principle">
+      <div class="principle-num">Principle 04</div>
+      <div class="principle-title">Scalable by Design</div>
+      <div class="principle-body">From pilot corridors to multi-sovereign deployment — ECO's architecture scales without compromising compliance or performance. Built for the volume demands of sovereign and enterprise use at full scale.</div>
+    </div>
+    <div class="principle">
+      <div class="principle-num">Principle 05</div>
+      <div class="principle-title">B2B First</div>
+      <div class="principle-body">Retail remittance is the visible market. B2B trade settlement — Lagos importers paying Dubai suppliers, Accra manufacturers settling with Abidjan distributors — is three times the volume at higher margin.</div>
+    </div>
+    <div class="principle">
+      <div class="principle-num">Principle 06</div>
+      <div class="principle-title">Phase Discipline</div>
+      <div class="principle-body">Beachhead first. West Africa ↔ GCC is Phase 1 — not the ceiling. Europe in 2027. USA and Intra-Africa in 2028. The discipline to build one corridor right before opening the next is what separates infrastructure from speculation.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div id="engage" class="cta-section">
+  <h2 class="cta-title">Ready to engage<br/>with the <em>platform?</em></h2>
+  <p class="cta-body">ECO Infrastructure is currently in its founding partner phase. If you represent an institution, fintech, sovereign-adjacent program, or enterprise operation — the founding window is open now.</p>
+  <div class="cta-btns">
+    <a href="https://eco-rails.com#partner" class="btn-primary">Apply for Partner Status</a>
+    <a href="https://eco-rails.com" class="btn-ghost">Visit ECO Infrastructure</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-brand">ECO SETTLEMENT</div>
+    <div class="footer-sub">An explainer resource by ECO Infrastructure · GoBeyond Advisory</div>
+  </div>
+  <div class="footer-links">
+    <a href="https://eco-rails.com">ECO Infrastructure</a>
+    <a href="https://gobeyondadvisory.com">GoBeyond Advisory</a>
+    <a href="mailto:partnerships@eco-rails.com">partnerships@eco-rails.com</a>
+  </div>
+  <div class="footer-copy">© 2026 ECO Infrastructure</div>
+</footer>
+
+</body>
+</html>
